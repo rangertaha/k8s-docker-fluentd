@@ -2,6 +2,9 @@
 
 Fluentd Docker image for kubernetes.
 
+[![Docker Repository on Quay.io](https://quay.io/repository/fluentd/k8s-docker-fluentd/status "Docker Repository on Quay.io")](https://quay.io/repository/rangertaha/k8s-docker-fluentd)
+
+
 ## Installs
 
 * []()
