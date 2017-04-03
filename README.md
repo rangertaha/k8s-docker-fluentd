@@ -12,7 +12,6 @@ Fluentd Docker image for kubernetes.
 ```
 docker run --name fluentd \
            --detach \
-           --publish 5601:5601 \
            -e FLUENTD_ES_URL=<elasticsearch url> \
            quay.io/rangertaha/k8s-docker-fluentd
 ```
