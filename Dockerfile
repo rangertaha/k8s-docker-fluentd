@@ -7,7 +7,7 @@ RUN ulimit -n 65536
 ENV DEBIAN_FRONTEND noninteractive
 
 # Copy the Fluentd configuration file.
-COPY td-agent.conf /etc/td-agent/td-agent.conf
+COPY config/td-agent.conf /etc/td-agent/td-agent.conf
 
 COPY run.sh /tmp/run.sh
 RUN /tmp/run.sh
