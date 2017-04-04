@@ -1,20 +1,40 @@
-FROM gcr.io/google_containers/ubuntu-slim:0.6
+FROM fluent/fluentd:v0.12.33
 
-EXPOSE 9292
+MAINTAINER rangertaha@gmail.com
 
-# Ensure there are enough file descriptors for running Fluentd.
-RUN ulimit -n 65536
+EXPOSE 9292 5170 5160 24224
 
-# Disable prompts from apt.
-ENV DEBIAN_FRONTEND noninteractive
+USER root
+WORKDIR /home/fluent
+ENV PATH /home/fluent/.gem/ruby/2.3.0/bin:$PATH
 
-# Copy the Fluentd configuration file.
-COPY config/td-agent.conf /etc/td-agent/td-agent.conf
+RUN set -ex \
+    && apk add --no-cache --virtual .build-deps \
+        build-base \
+        ruby-dev \
+    && echo 'gem: --no-document' >> /etc/gemrc \
+    && gem install fluent-plugin-secure-forward \
+    && gem install fluent-plugin-record-reformer \
+    && gem install fluent-plugin-elasticsearch \
+    && gem install fluent-plugin-kubernetes_metadata_filter \
+    && apk del .build-deps \
+    && rm -rf /tmp/* /var/tmp/* /usr/lib/ruby/gems/*/cache/*.gem
 
-COPY run.sh /tmp/run.sh
-RUN /tmp/run.sh
+# Copy configuration files
+COPY ./config/fluent.conf /fluentd/etc/
+COPY ./config/kubernetes.conf /fluentd/etc/
 
-ENV LD_PRELOAD /opt/td-agent/embedded/lib/libjemalloc.so
+# Copy plugins
+COPY plugins /fluentd/plugins/
 
-# Run the Fluentd service.
-ENTRYPOINT ["td-agent"]
+# Environment variables
+ENV FLUENTD_OPT=""
+ENV FLUENTD_CONF="fluent.conf"
+
+# jemalloc is memory optimization only available for td-agent
+# td-agent is provided and QA'ed by treasuredata as rpm/deb/.. package
+# -> td-agent (stable) vs fluentd (edge)
+#ENV LD_PRELOAD="/usr/lib/libjemalloc.so.2"
+
+# Run Fluentd
+CMD exec fluentd -c /fluentd/etc/$FLUENTD_CONF -p /fluentd/plugins $FLUENTD_OPT
