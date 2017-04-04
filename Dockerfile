@@ -2,7 +2,7 @@ FROM fluent/fluentd:v0.12.33
 
 MAINTAINER rangertaha@gmail.com
 
-EXPOSE 9292 5170 5160 24224
+EXPOSE 9292 24224
 
 USER root
 WORKDIR /home/fluent
